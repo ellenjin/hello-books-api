@@ -12,12 +12,14 @@ class Book(db.Model):
     description: Mapped[str]
     author_id: Mapped[Optional[int]] = mapped_column(ForeignKey("author.id"))
     author: Mapped[Optional["Author"]] = relationship(back_populates="books")
-    # description: Mapped[Optional[str]] = mapped_column(nullable=True) # change this back to Mapped[str] later
 
     @classmethod
     def from_dict(cls, book_data):
+        author_id = book_data.get("author_id")
         new_book = cls(title=book_data["title"],
-                        description=book_data["description"])
+                        description=book_data["description"],
+                        author_id=author_id
+        )
         return new_book
 
     def to_dict(self):
@@ -25,5 +27,8 @@ class Book(db.Model):
         book_as_dict["id"] = self.id
         book_as_dict["title"] = self.title
         book_as_dict["description"] = self.description
+
+        if self.author:
+            book_as_dict["author"] = self.author.name
 
         return book_as_dict
